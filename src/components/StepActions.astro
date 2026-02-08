@@ -1,0 +1,29 @@
+---
+interface Props {
+	variant: "single" | "yes-no";
+	primaryLabel: string;
+	secondaryLabel?: string;
+	primaryId: string;
+	secondaryId?: string;
+}
+
+const { variant, primaryLabel, secondaryLabel, primaryId, secondaryId } = Astro.props as Props;
+const showSecondary = variant === "yes-no" && secondaryLabel && secondaryId;
+---
+
+<div class:list={["step-actions", variant === "single" ? "is-single" : "is-yes-no"]}>
+	<button
+		type="button"
+		id={primaryId}
+		class:list={["btn", "val-btn", "val-btn-primary", variant === "yes-no" && "val-btn-yes"]}
+	>
+		{primaryLabel.toUpperCase()}
+	</button>
+	{
+		showSecondary && (
+			<button type="button" id={secondaryId} class="btn val-btn val-btn-secondary val-btn-no">
+				{secondaryLabel.toUpperCase()}
+			</button>
+		)
+	}
+</div>

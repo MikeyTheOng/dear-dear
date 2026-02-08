@@ -1,0 +1,23 @@
+---
+interface GifItem {
+	src: string;
+	alt: string;
+}
+
+interface Props {
+	gifs: ReadonlyArray<GifItem>;
+}
+
+const { gifs } = Astro.props as Props;
+const visibleGifs = gifs.slice(0, 3);
+---
+
+<div class="val-gif-row" style={`--gif-count:${visibleGifs.length};`}>
+	{
+		visibleGifs.map((gif) => (
+			<figure class="val-gif-card">
+				<img src={gif.src} alt={gif.alt} loading="lazy" decoding="async" />
+			</figure>
+		))
+	}
+</div>

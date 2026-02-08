@@ -1,0 +1,30 @@
+---
+import GifRow from "./GifRow.astro";
+
+interface GifItem {
+	src: string;
+	alt: string;
+}
+
+interface Props {
+	step: 1 | 2 | 3;
+	text: string;
+	gifs: ReadonlyArray<GifItem>;
+	hidden?: boolean;
+}
+
+const { step, text, gifs, hidden = false } = Astro.props as Props;
+const hasActions = Astro.slots.has("actions");
+---
+
+<section data-step={step} class:list={["val-step", hidden && "is-hidden"]} hidden={hidden}>
+	<GifRow gifs={gifs} />
+	<p class="val-step-text">{text.toUpperCase()}</p>
+	{
+		hasActions && (
+			<div class="val-step-actions">
+				<slot name="actions" />
+			</div>
+		)
+	}
+</section>

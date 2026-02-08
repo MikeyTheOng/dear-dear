@@ -1,0 +1,110 @@
+---
+import Layout from "../layouts/Layout.astro";
+import StepActions from "../components/StepActions.astro";
+import ValentineStep from "../components/ValentineStep.astro";
+
+const stepConfig = {
+	1: {
+		text: "FOR MILK'S EYES ONLY",
+		gifs: [
+			{ src: "/gifs/mocha-coding-dozing.gif", alt: "Mocha coding and dozing off" },
+			{ src: "/gifs/milk-and-matcha-greeting.gif", alt: "Milk and Matcha greeting each other" },
+			{ src: "/gifs/mocha-spinning.gif", alt: "Mocha spinning happily" },
+		],
+	},
+	2: {
+		text: "WILL YOU BE MY VALENTINE?",
+		gifs: [{ src: "/gifs/mocha-roses.gif", alt: "Mocha offering roses" }],
+	},
+	3: {
+		text: "IT'S A DATE!",
+		gifs: [
+			{ src: "/gifs/mocha-dancing.gif", alt: "Mocha dancing with joy" },
+			{ src: "/gifs/mocha-slingshotting-heart.gif", alt: "Mocha launching a heart" },
+		],
+	},
+} as const;
+---
+<Layout title="Valentine's Day Card">
+	<div class="valentine-shell">
+		<ValentineStep step={1} text={stepConfig[1].text} gifs={stepConfig[1].gifs}>
+			<StepActions
+				slot="actions"
+				variant="single"
+				primaryLabel="I'M MILK!"
+				primaryId="step-1-milk-btn"
+			/>
+		</ValentineStep>
+
+		<ValentineStep step={2} text={stepConfig[2].text} gifs={stepConfig[2].gifs} hidden>
+			<StepActions
+				slot="actions"
+				variant="yes-no"
+				primaryLabel="YES"
+				secondaryLabel="NO"
+				primaryId="step-2-yes-btn"
+				secondaryId="step-2-no-btn"
+			/>
+		</ValentineStep>
+
+		<ValentineStep step={3} text={stepConfig[3].text} gifs={stepConfig[3].gifs} hidden />
+	</div>
+
+	<script is:inline>
+		(() => {
+			const stepNodes = Array.from(document.querySelectorAll("[data-step]"));
+			const stepOneButton = document.getElementById("step-1-milk-btn");
+			const yesButton = document.getElementById("step-2-yes-btn");
+			const noButton = document.getElementById("step-2-no-btn");
+
+			if (!stepNodes.length || !stepOneButton || !yesButton || !noButton) {
+				return;
+			}
+
+			let currentStep = 1;
+			let noPressCount = 0;
+			const noLabels = ["NO", "JIN CHA?", "REALLY JIN CHA?", "D:"];
+
+			const showStep = (targetStep) => {
+				currentStep = targetStep;
+				stepNodes.forEach((node) => {
+					const nodeStep = Number(node.getAttribute("data-step"));
+					const isCurrent = nodeStep === currentStep;
+					node.classList.toggle("is-hidden", !isCurrent);
+					node.toggleAttribute("hidden", !isCurrent);
+				});
+			};
+
+			const refreshYesButton = () => {
+				const scale = Math.min(1 + noPressCount * 0.22, 4.5);
+				yesButton.style.setProperty("--yes-scale", String(scale));
+				yesButton.classList.toggle("is-shifting", noPressCount >= 2);
+				yesButton.classList.toggle("is-centered", noPressCount >= 4);
+			};
+
+			stepOneButton.addEventListener("click", () => {
+				showStep(2);
+			});
+
+			noButton.addEventListener("click", () => {
+				noPressCount += 1;
+				noButton.textContent = noLabels[noPressCount % noLabels.length];
+				refreshYesButton();
+
+				if (noPressCount >= 7) {
+					noButton.classList.add("is-hidden");
+					noButton.hidden = true;
+				}
+			});
+
+			yesButton.addEventListener("click", () => {
+				noButton.classList.add("is-hidden");
+				noButton.hidden = true;
+				showStep(3);
+			});
+
+			showStep(currentStep);
+			refreshYesButton();
+		})();
+	</script>
+</Layout>
